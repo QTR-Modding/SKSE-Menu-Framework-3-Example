@@ -1,4 +1,4 @@
-#include "UI.h"
+﻿#include "UI.h"
 
 void UI::Register() {
     if (!SKSEMenuFramework::IsInstalled()) {
@@ -71,6 +71,7 @@ void __stdcall UI::Example2::RenderWindow() {
     ImGui::SetNextWindowSize(ImVec2{viewport->Size.x * 0.4f, viewport->Size.y * 0.4f}, ImGuiCond_Appearing);
     ImGui::Begin("My First Tool##MenuEntiryFromMod",nullptr, ImGuiWindowFlags_MenuBar); // If two mods have the same window name, and they open at the same time.
     ImGui::Text("The B key closes and opens this window");
+    ImGui::Text("%s", u8"测试"); // Requires a chinese font
                                                                                          // The window content will be merged, is good practice to add ##ModName after the window name.
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
