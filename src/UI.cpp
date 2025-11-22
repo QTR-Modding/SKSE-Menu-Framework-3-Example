@@ -160,15 +160,15 @@ void __stdcall UI::Example5::RenderOverlay() {
         return;
     }
     auto drawList = ImGui::GetForegroundDrawList(); 
-    ImVec2 center = ImGui::GetIO()->DisplaySize;
-    center.x *= 0.5;
-    center.y *= 0.5;
-    ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
+    //ImVec2 center = ImGui::GetIO()->DisplaySize;
+    //center.x *= 0.5;
+    //center.y *= 0.5;
+    //ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
 
     const char* text = "Press B to toggle the info window";
     ImVec2 textSize;
     ImGui::CalcTextSize(&textSize, text,0, false, 0);
-    ImVec2 textPos = ImVec2(ImGui::GetIO()->DisplaySize.x - textSize.x - 10, 10);  // 10px padding from edges
+    ImVec2 textPos = ImVec2(ImGui::GetIO()->DisplaySize.x - textSize.x - 20, 20);  // 10px padding from edges
     ImGui::ImDrawListManager::AddText(drawList, textPos, IM_COL32(255, 255, 255, 255), text);
 }
 
@@ -192,7 +192,7 @@ void __stdcall UI::Example5::RenderWindow() {
 
     // Position window at top right corner
     ImVec2 windowSize = ImVec2{viewport->Size.x * 0.4f, viewport->Size.y * 0.4f};
-    ImVec2 windowPos = ImVec2{viewport->Pos.x + viewport->Size.x - windowSize.x, viewport->Pos.y};
+    ImVec2 windowPos = ImVec2{viewport->Pos.x + viewport->Size.x - windowSize.x - 20, viewport->Pos.y + 20};
 
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing, {0,0});
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing);
