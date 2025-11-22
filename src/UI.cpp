@@ -6,14 +6,15 @@ void UI::Register() {
     }
     Example3::filter = new ImGuiTextFilter();
     Configuration::Example2::Buffer[0] = '\0';
-    SKSEMenuFramework::SetSection("SKSE Menu Framework Compiled Example 4");
+    SKSEMenuFramework::SetSection("SKSE Menu Framework Compiled Example");
     SKSEMenuFramework::AddSectionItem("Font Awesome", Example4::Render);
     SKSEMenuFramework::AddSectionItem("Add Item", Example1::Render);
-    SKSEMenuFramework::AddSectionItem("Folder Example/Example 1", Example2::Render);
+    SKSEMenuFramework::AddSectionItem("Folder Example/Example 2", Example2::Render);
     UI::Example2::ExampleWindow = SKSEMenuFramework::AddWindow(Example2::RenderWindow, true);
-    SKSEMenuFramework::AddSectionItem("Folder Example/Example 2", Example3::Render);
+    SKSEMenuFramework::AddSectionItem("Folder Example/Example 3", Example3::Render);
 
-    SKSEMenuFramework::AddHudElement(Example5::Render);
+    SKSEMenuFramework::AddSectionItem("Example 5", Example5::Render);
+    SKSEMenuFramework::AddHudElement(Example5::RenderOverlay);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
     UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
 }
@@ -146,6 +147,15 @@ void __stdcall UI::Example4::Render() {
 }
 
 void __stdcall UI::Example5::Render() {
+    auto texture = SKSEMenuFramework::LoadTexture("Data\\interface\\unlit-bomb.svg", {100, 100});
+    ImGui::Text("Open non pausing menu: ");
+    ImGui::SameLine();
+    if (ImGui::ImageButton("Open non pausing menu##button", texture, {100, 100})) {
+        NonPausingWindow->IsOpen = !NonPausingWindow->IsOpen;
+    }
+}
+
+void __stdcall UI::Example5::RenderOverlay() {
     if (SKSEMenuFramework::IsAnyBlockingWindowOpened()) {
         return;
     }
