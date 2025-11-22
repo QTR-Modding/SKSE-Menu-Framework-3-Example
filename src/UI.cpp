@@ -155,7 +155,7 @@ void __stdcall UI::Example5::Render() {
     center.y *= 0.5;
     ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
 
-    const char* text = "Press B to toggle the window";
+    const char* text = "Press B to toggle the info window";
     ImVec2 textSize;
     ImGui::CalcTextSize(&textSize, text,0, false, 0);
     ImVec2 textPos = ImVec2(ImGui::GetIO()->DisplaySize.x - textSize.x - 10, 10);  // 10px padding from edges
@@ -188,6 +188,13 @@ void __stdcall UI::Example5::RenderWindow() {
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing);
 
     ImGui::Begin("My First Overlay Window##MenuEntiryFromMod", nullptr, ImGuiWindowFlags_NoCollapse);
-    ImGui::Text("%s", u8"测试");
+    ImGui::Text("Chinese characters (requires chinese font): %s", u8"测试");
+    //You can load only once if you want, but the texture loader creates a cache of your texutre;
+    auto texture = SKSEMenuFramework::LoadTexture("Data\\interface\\unlit-bomb.svg", {100, 100});
+    auto texture2 = SKSEMenuFramework::LoadTexture("Data\\interface\\screenshot.png");
+    ImGui::Text("Image Display: ");
+    ImGui::SameLine();
+    ImGui::Image(texture, ImVec2(100, 100));
+    ImGui::Image(texture2, ImVec2(640, 360));
     ImGui::End();
 }

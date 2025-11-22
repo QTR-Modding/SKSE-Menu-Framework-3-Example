@@ -7,9 +7,16 @@
 
 static auto menuFramework = GetModuleHandle(L"SKSEMenuFramework");
 #define MENU_WINDOW SKSEMenuFramework::Model::WindowInterface*
+namespace ImGuiMCP {
+    typedef struct ImVec2 ImVec2;
+    struct ImVec2 {
+        float x, y;
+    };
+    typedef void* ImTextureID;
+}
 
 namespace SKSEMenuFramework {
-
+    using namespace ImGuiMCP;
     inline bool IsInstalled() {
         constexpr auto dllPath = "Data/SKSE/Plugins/SKSEMenuFramework.dll";
         return std::filesystem::exists(dllPath);
@@ -44,6 +51,7 @@ namespace SKSEMenuFramework {
         using UnregisterHudElementFuction = void(*)(uint64_t id);
         using IsAnyBlockingWindowOpenedFuction = bool(*)();
         using SetWindowsPauseGameFuction = void(*)(bool pause);
+        using LoadTextureFuction = ImTextureID(*)(const char* texturePath, ImVec2* size);
 
          class InputEvent {
             uint64_t id;
@@ -111,6 +119,15 @@ namespace SKSEMenuFramework {
             return func();
         }
         return false;
+    }
+
+    
+    inline ImTextureID LoadTexture(std::string texturePath, ImVec2 size = {0, 0}) {
+        static auto func = Model::Internal::GetFunction<Model::LoadTextureFuction>("LoadTexture");
+        if (func) {
+            return func(texturePath.c_str(), &size); 
+        }
+        return 0;
     }
 
 
@@ -335,7 +352,6 @@ namespace ImGuiMCP {
     typedef int ImGuiTreeNodeFlags;
     typedef int ImGuiViewportFlags;
     typedef int ImGuiWindowFlags;
-    typedef void* ImTextureID;
     typedef unsigned short ImDrawIdx;
     typedef unsigned int ImWchar32;
     typedef unsigned short ImWchar16;
@@ -344,10 +360,7 @@ namespace ImGuiMCP {
     typedef void (*ImGuiSizeCallback)(ImGuiSizeCallbackData* data);
     typedef void* (*ImGuiMemAllocFunc)(size_t sz, void* user_data);
     typedef void (*ImGuiMemFreeFunc)(void* ptr, void* user_data);
-    typedef struct ImVec2 ImVec2;
-    struct ImVec2 {
-        float x, y;
-    };
+
     typedef struct ImVec4 ImVec4;
     struct ImVec4 {
         float x, y, z, w;
@@ -4513,14 +4526,15 @@ namespace ImGuiMCP {
             func_t func = reinterpret_cast<func_t>(GetProcAddress(menuFramework, "igBullet"));
             return func();
         }
-        inline void Image(ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0, const ImVec2 uv1,
-                          const ImVec4 tint_col, const ImVec4 border_col) {
+        inline void Image(ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0 = ImVec2(0, 0),
+                          const ImVec2 uv1= ImVec2(1, 1), const ImVec4 tint_col = ImVec4(1, 1, 1, 1),
+                          const ImVec4 border_col = ImVec4(0, 0, 0, 0)) {
             using func_t = void (*)(ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec4, const ImVec4);
             func_t func = reinterpret_cast<func_t>(GetProcAddress(menuFramework, "igImage"));
             return func(user_texture_id, image_size, uv0, uv1, tint_col, border_col);
         }
         inline bool ImageButton(const char* str_id, ImTextureID user_texture_id, const ImVec2 image_size,
-                                const ImVec2 uv0, const ImVec2 uv1, const ImVec4 bg_col, const ImVec4 tint_col) {
+                                const ImVec2 uv0 = ImVec2(0, 0), const ImVec2 uv1 = ImVec2(1, 1), const ImVec4 bg_col= ImVec4(0, 0, 0, 0), const ImVec4 tint_col = ImVec4(1, 1, 1, 1)) {
             using func_t = bool (*)(const char*, ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec4,
                                     const ImVec4);
             func_t func = reinterpret_cast<func_t>(GetProcAddress(menuFramework, "igImageButton"));
