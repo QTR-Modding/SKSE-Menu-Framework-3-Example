@@ -28,6 +28,7 @@ namespace SKSEMenuFramework {
         class WindowInterface {
         public:
             std::atomic<bool> IsOpen{false};
+            std::atomic<bool> PauseGame{true};
         };
         typedef void(__stdcall* RenderFunction)();
         typedef bool(__stdcall* InputEventCallback)(RE::InputEvent*);
@@ -41,7 +42,8 @@ namespace SKSEMenuFramework {
 
         using RegisterHudElementFuction = int64_t(*)(HudElementCallback callback);
         using UnregisterHudElementFuction = void(*)(uint64_t id);
-        using IsAnyWindowOpenedFuction = bool(*)();
+        using IsAnyBlockingWindowOpenedFuction = bool(*)();
+        using SetWindowsPauseGameFuction = void(*)(bool pause);
 
          class InputEvent {
             uint64_t id;
@@ -91,23 +93,26 @@ namespace SKSEMenuFramework {
             return func((Model::Internal::key + "/" + menu).c_str(), rendererFunction);
         }
     }
-    inline Model::WindowInterface* AddWindow(Model::RenderFunction rendererFunction) {
+    inline Model::WindowInterface* AddWindow(Model::RenderFunction rendererFunction, bool doesWindowPauseGame = true) {
         static auto func = Model::Internal::GetFunction<Model::AddWindowFunction>("AddWindow");
         if (func) {
-            return func(rendererFunction);
+            auto result = func(rendererFunction);
+            result->PauseGame = doesWindowPauseGame;
+            return result;
         }
         return nullptr;
     }
     inline  Model::InputEvent* AddInputEvent(Model::InputEventCallback callback) { return new Model::InputEvent(callback); }
     inline Model::HudElement* AddHudElement(Model::HudElementCallback callback) { return new Model::HudElement(callback); }
 
-    inline bool IsAnyWindowOpened() {
-        static auto func = Model::Internal::GetFunction<Model::IsAnyWindowOpenedFuction>("IsAnyWindowOpened");
+    inline bool IsAnyBlockingWindowOpened() {
+        static auto func = Model::Internal::GetFunction<Model::IsAnyBlockingWindowOpenedFuction>("IsAnyBlockingWindowOpened");
         if (func) {
             return func();
         }
         return false;
     }
+
 
 
     inline void SetSection(std::string key) { Model::Internal::key = key; }

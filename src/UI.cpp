@@ -10,11 +10,12 @@ void UI::Register() {
     SKSEMenuFramework::AddSectionItem("Font Awesome", Example4::Render);
     SKSEMenuFramework::AddSectionItem("Add Item", Example1::Render);
     SKSEMenuFramework::AddSectionItem("Folder Example/Example 1", Example2::Render);
-    UI::Example2::ExampleWindow = SKSEMenuFramework::AddWindow(Example2::RenderWindow);
+    UI::Example2::ExampleWindow = SKSEMenuFramework::AddWindow(Example2::RenderWindow, true);
     SKSEMenuFramework::AddSectionItem("Folder Example/Example 2", Example3::Render);
 
     SKSEMenuFramework::AddHudElement(Example5::Render);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
+    UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
 }
 
 void UI::Example1::LookupForm() {
@@ -70,8 +71,6 @@ void __stdcall UI::Example2::RenderWindow() {
     ImGui::ImVec2Manager::Destroy(center);
     ImGui::SetNextWindowSize(ImVec2{viewport->Size.x * 0.4f, viewport->Size.y * 0.4f}, ImGuiCond_Appearing);
     ImGui::Begin("My First Tool##MenuEntiryFromMod",nullptr, ImGuiWindowFlags_MenuBar); // If two mods have the same window name, and they open at the same time.
-    ImGui::Text("The B key closes and opens this window");
-    ImGui::Text("%s", u8"测试"); // Requires a chinese font
                                                                                          // The window content will be merged, is good practice to add ##ModName after the window name.
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -147,7 +146,7 @@ void __stdcall UI::Example4::Render() {
 }
 
 void __stdcall UI::Example5::Render() {
-    if (SKSEMenuFramework::IsAnyWindowOpened()) {
+    if (SKSEMenuFramework::IsAnyBlockingWindowOpened()) {
         return;
     }
     auto drawList = ImGui::GetForegroundDrawList(); 
@@ -163,11 +162,27 @@ bool __stdcall UI::Example5::OnInput(RE::InputEvent* event) {
     if (event->device == RE::INPUT_DEVICE::kKeyboard) {
         if (auto button = event->AsButtonEvent()) {
             if (button->GetIDCode() == RE::BSWin32KeyboardDevice::Key::kB && button->IsDown()) {
-                Example2::ExampleWindow->IsOpen = !Example2::ExampleWindow->IsOpen;
+                NonPausingWindow->IsOpen = !NonPausingWindow->IsOpen;
                 blockUserInput = true;
             }
         }
     }
 
     return blockUserInput;
+}
+
+void __stdcall UI::Example5::RenderWindow() {
+    auto viewport = ImGui::GetMainViewport();
+
+    // Position window at top right corner
+    ImVec2 windowSize = ImVec2{viewport->Size.x * 0.4f, viewport->Size.y * 0.4f};
+    ImVec2 windowPos = ImVec2{viewport->Pos.x + viewport->Size.x - windowSize.x, viewport->Pos.y};
+
+    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing, {0,0});
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing);
+
+    ImGui::Begin("My First Overlay Window##MenuEntiryFromMod", nullptr, ImGuiWindowFlags_NoCollapse);
+    ImGui::Text("The B key closes and opens this window");
+    ImGui::Text("%s", u8"测试");
+    ImGui::End();
 }

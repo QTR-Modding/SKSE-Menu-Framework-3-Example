@@ -29,5 +29,7 @@ namespace UI {
     namespace Example5 {
         void __stdcall Render();
         bool __stdcall OnInput(RE::InputEvent* event);
+        void __stdcall RenderWindow();
+        inline MENU_WINDOW NonPausingWindow;
     }
 };
