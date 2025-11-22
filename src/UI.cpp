@@ -154,6 +154,12 @@ void __stdcall UI::Example5::Render() {
     center.x *= 0.5;
     center.y *= 0.5;
     ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
+
+    const char* text = "Press B to toggle the window";
+    ImVec2 textSize;
+    ImGui::CalcTextSize(&textSize, text,0, false, 0);
+    ImVec2 textPos = ImVec2(ImGui::GetIO()->DisplaySize.x - textSize.x - 10, 10);  // 10px padding from edges
+    ImGui::ImDrawListManager::AddText(drawList, textPos, IM_COL32(255, 255, 255, 255), text);
 }
 
 bool __stdcall UI::Example5::OnInput(RE::InputEvent* event) { 
@@ -182,7 +188,6 @@ void __stdcall UI::Example5::RenderWindow() {
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing);
 
     ImGui::Begin("My First Overlay Window##MenuEntiryFromMod", nullptr, ImGuiWindowFlags_NoCollapse);
-    ImGui::Text("The B key closes and opens this window");
     ImGui::Text("%s", u8"测试");
     ImGui::End();
 }
