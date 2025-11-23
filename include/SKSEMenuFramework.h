@@ -35,7 +35,7 @@ namespace SKSEMenuFramework {
         class WindowInterface {
         public:
             std::atomic<bool> IsOpen{false};
-            std::atomic<bool> PauseGame{true};
+            std::atomic<bool> BlockUserInput{true};
         };
         typedef void(__stdcall* RenderFunction)();
         typedef bool(__stdcall* InputEventCallback)(RE::InputEvent*);
@@ -105,7 +105,7 @@ namespace SKSEMenuFramework {
         static auto func = Model::Internal::GetFunction<Model::AddWindowFunction>("AddWindow");
         if (func) {
             auto result = func(rendererFunction);
-            result->PauseGame = doesWindowPauseGame;
+            result->BlockUserInput = doesWindowPauseGame;
             return result;
         }
         return nullptr;
