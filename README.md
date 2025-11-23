@@ -13,3 +13,8 @@
 - SKYRIM_OWRT_FOLDER
 - SKYRIM_MODS_FOLDER2
 - SKYRIM_MODS_FOLDER
+
+
+## Description of the new features
+
+https://github.com/QTR-Modding/SKSE-Menu-Framework-3/blob/master/README.md
