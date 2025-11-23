@@ -6,9 +6,11 @@ COMMONLIB_SSE_FOLDER
 
 Clone this Repository, to somewhere safe and adds its path to this environment variable on Windows.
 
+```bash
 git clone --recursive https://github.com/alandtse/CommonLibVR
 cd CommonLibVR
 git checkout ng
+```
   
 ## Optional ouput folder optional variables
 
