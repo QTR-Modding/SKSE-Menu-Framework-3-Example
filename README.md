@@ -2,9 +2,13 @@
 
 [How to set up envioriment variables](https://gist.github.com/Thiago099/b45ec7832fb754325b29a61006bcd10c)
 
-- COMMONLIB_SSE_FOLDER
+COMMONLIB_SSE_FOLDER
 
-  Clone [this](https://github.com/CharmedBaryon/CommonLibSSE-NG) Repository, to somewhere safe and adds its path to this environment variable on Windows.
+Clone this Repository, to somewhere safe and adds its path to this environment variable on Windows.
+
+git clone --recursive https://github.com/alandtse/CommonLibVR
+cd CommonLibVR
+git checkout ng
   
 ## Optional ouput folder optional variables
 
