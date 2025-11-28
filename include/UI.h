@@ -2,7 +2,6 @@
 #include "SKSEMenuFramework.h"
 #include "Configuration.h"
 namespace UI {
-    using namespace ImGuiMCP;
     void Register();
     namespace Example1 {
         inline uint32_t AddFormId = 0x64B33;
