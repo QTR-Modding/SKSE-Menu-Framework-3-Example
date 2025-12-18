@@ -8,9 +8,8 @@ set(BEAUTIFUL_NAME "SKSE Menu Framework Example")
 ```
 
 Delete the LICENCE file and use git to create the licence you want your mod to be
-
-![Image 1](https://gist.github.com/user-attachments/assets/d8720331-4628-47e2-9493-b23b44adf644)
-![Image 2](https://gist.github.com/user-attachments/assets/6a0ee652-5033-4c09-a65e-291e2b70be22)
+<img width="572" height="292" alt="image" src="https://github.com/user-attachments/assets/80cd698b-a4ac-499d-9de3-07d261682604" />
+<img width="499" height="182" alt="image" src="https://github.com/user-attachments/assets/2cb7e4c8-edd6-4b24-91d8-074d2701c951" />
 
 Update the cmake/version.rc.in with your licence (This licence will go into the dll)
 
