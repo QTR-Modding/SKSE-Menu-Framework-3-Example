@@ -119,7 +119,7 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends
 )
 
-
+target_compile_definitions(${PRODUCT_NAME} PRIVATE MOD_NAME="${BEAUTIFUL_NAME}")
 
 
 # ---------------------------------------------------- #
