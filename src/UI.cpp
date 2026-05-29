@@ -18,6 +18,8 @@ void UI::Register() {
     SKSEMenuFramework::AddHudElement(Example5::RenderOverlay);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
     UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
+
+    SKSEMenuFramework::AddEvent(UI::Example6::OnEvent, 0);
 }
 
 void UI::Example1::LookupForm() {
@@ -223,5 +225,25 @@ void __stdcall UI::Example5::RenderWindow() {
 void __stdcall UI::Example6::Render() {
     if (ImGuiMCP::Button("Close")) {
         SKSEMenuFramework::GetMainWindow()->IsOpen = false;
+    }
+    for (auto item : calledEvents) {
+        switch (item) {
+            case
+            SKSEMenuFramework::Model::EventType::kCloseMenu:
+                ImGuiMCP::Text("Close menu");
+                break;
+            case SKSEMenuFramework::Model::EventType::kOpenMenu:
+                ImGuiMCP::Text("Open menu");
+                break;
+        }
+    }
+}
+
+void __stdcall UI::Example6::OnEvent(SKSEMenuFramework::Model::EventType eventType) { 
+    if (SKSEMenuFramework::Model::EventType::kCloseMenu == eventType || SKSEMenuFramework::Model::EventType::kOpenMenu == eventType) {
+        if (calledEvents.size() > 10) {
+            calledEvents.erase(calledEvents.begin());
+        }
+        calledEvents.push_back(eventType); 
     }
 }

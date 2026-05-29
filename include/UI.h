@@ -33,6 +33,8 @@ namespace UI {
         inline MENU_WINDOW NonPausingWindow;
     }
     namespace Example6 {
+        inline std::vector<SKSEMenuFramework::Model::EventType> calledEvents;
         void __stdcall Render();
+        void __stdcall OnEvent(SKSEMenuFramework::Model::EventType eventType);
     }
 };
