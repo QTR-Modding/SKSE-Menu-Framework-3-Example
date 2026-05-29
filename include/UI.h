@@ -32,4 +32,7 @@ namespace UI {
         void __stdcall RenderWindow();
         inline MENU_WINDOW NonPausingWindow;
     }
+    namespace Example6 {
+        void __stdcall Render();
+    }
 };

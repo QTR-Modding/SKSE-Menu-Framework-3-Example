@@ -14,6 +14,7 @@ void UI::Register() {
     SKSEMenuFramework::AddSectionItem("Folder Example/Example 3", Example3::Render);
 
     SKSEMenuFramework::AddSectionItem("Example 5", Example5::Render);
+    SKSEMenuFramework::AddSectionItem("Example 6", Example6::Render);
     SKSEMenuFramework::AddHudElement(Example5::RenderOverlay);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
     UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
@@ -185,6 +186,13 @@ bool __stdcall UI::Example5::OnInput(RE::InputEvent* event) {
             }
         }
     }
+    if (event->device == RE::INPUT_DEVICE::kKeyboard) {
+        if (auto button = event->AsButtonEvent()) {
+            if (button->GetIDCode() == RE::BSWin32KeyboardDevice::Key::kM && button->IsDown()) {
+                SKSEMenuFramework::GetMainWindow()->IsOpen.store(!SKSEMenuFramework::GetMainWindow()->IsOpen.load());
+            }
+        }
+    }
 
     return blockThisUserInput;
 }
@@ -209,4 +217,10 @@ void __stdcall UI::Example5::RenderWindow() {
     ImGuiMCP::Image(texture, ImGuiMCP::ImVec2(100, 100));
     ImGuiMCP::Image(texture2, ImGuiMCP::ImVec2(640, 360));
     ImGuiMCP::End();
+}
+
+void __stdcall UI::Example6::Render() {
+    if (ImGuiMCP::Button("Close")) {
+        SKSEMenuFramework::GetMainWindow()->IsOpen = false;
+    }
 }
