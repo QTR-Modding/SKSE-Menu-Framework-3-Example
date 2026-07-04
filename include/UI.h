@@ -37,4 +37,7 @@ namespace UI {
         void __stdcall Render();
         void __stdcall OnEvent(SKSEMenuFramework::Model::EventType eventType);
     }
+    namespace Example7 {
+        void __stdcall Render();
+    }
 };

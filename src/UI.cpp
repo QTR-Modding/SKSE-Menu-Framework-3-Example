@@ -15,6 +15,7 @@ void UI::Register() {
 
     SKSEMenuFramework::AddSectionItem("Example 5", Example5::Render);
     SKSEMenuFramework::AddSectionItem("Example 6", Example6::Render);
+    SKSEMenuFramework::AddSectionItem("Example 7", Example7::Render);
     SKSEMenuFramework::AddHudElement(Example5::RenderOverlay);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
     UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
@@ -69,10 +70,8 @@ void __stdcall UI::Example2::Render() {
 void __stdcall UI::Example2::RenderWindow() {
     auto viewport = ImGuiMCP::GetMainViewport();
 
-    auto center = ImGuiMCP::ImVec2Manager::Create();
-    ImGuiMCP::ImGuiViewportManager::GetCenter(center, viewport);
-    ImGuiMCP::SetNextWindowPos(*center, ImGuiMCP::ImGuiCond_Appearing, ImGuiMCP::ImVec2{0.5f, 0.5f});
-    ImGuiMCP::ImVec2Manager::Destroy(center);
+    auto center = ImGuiMCP::ImGuiViewportManager::GetCenter(viewport);
+    ImGuiMCP::SetNextWindowPos(center, ImGuiMCP::ImGuiCond_Appearing, ImGuiMCP::ImVec2{0.5f, 0.5f});
     ImGuiMCP::SetNextWindowSize(ImGuiMCP::ImVec2{viewport->Size.x * 0.4f, viewport->Size.y * 0.4f}, ImGuiMCP::ImGuiCond_Appearing);
     ImGuiMCP::Begin("My First Tool##MenuEntiryFromMod", nullptr,
                     ImGuiMCP::ImGuiWindowFlags_MenuBar);  // If two mods have the same window name, and they open at the
@@ -171,12 +170,10 @@ void __stdcall UI::Example5::RenderOverlay() {
     // ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
 
     const char* text = "Press B to toggle the info window";
-    ImGuiMCP::ImVec2 textSize;
-    ImGuiMCP::CalcTextSize(&textSize, text, 0, false, 0);
+    ImGuiMCP::ImVec2 textSize = ImGuiMCP::CalcTextSize(text, 0, false, 0);
     ImGuiMCP::ImVec2 textPos = ImGuiMCP::ImVec2(ImGuiMCP::GetIO()->DisplaySize.x - textSize.x - 20, 20);  // 10px padding from edges
     ImGuiMCP::ImDrawListManager::AddText(drawList, textPos, IM_COL32(255, 255, 255, 255), text);
 }
-
 bool __stdcall UI::Example5::OnInput(RE::InputEvent* event) {
     bool blockThisUserInput = false;
 
@@ -247,3 +244,14 @@ void __stdcall UI::Example6::OnEvent(SKSEMenuFramework::Model::EventType eventTy
         calledEvents.push_back(eventType); 
     }
 }
+
+void __stdcall UI::Example7::Render() {
+
+    SKSEMenuFramework::PushFont("MonsieurLaDoulaise-Regular.ttf");
+    ImGuiMCP::Text("Hello world");
+    ImGuiMCP::PopFont();
+    SKSEMenuFramework::PushFont("RobotoMono-Regular.ttf");
+    ImGuiMCP::Text("Hello world");
+    ImGuiMCP::PopFont();
+}
+
