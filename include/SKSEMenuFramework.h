@@ -82,6 +82,8 @@ namespace SKSEMenuFramework {
         using LoadTextureFuction = ImGuiMCP::ImTextureID (*)(const char* texturePath, ImGuiMCP::ImVec2* size);
         using DisposeTextureFuction = void (*)(const char* texturePath);
         using GetMenuFrameworkVersionFunction = float (*)();
+        using SetHotkeyEnabledFunction = void (*)(bool enabled);
+        using IsHotkeyEnabledFunction = bool (*)();
 
         class InputEvent {
             uint64_t id;
@@ -171,6 +173,16 @@ namespace SKSEMenuFramework {
             return result;
         }
         return nullptr;
+    }
+    inline void SetHotkeyEnabled(bool enabled) {
+        static auto func = Model::Internal::GetFunction<Model::SetHotkeyEnabledFunction>("SetHotkeyEnabled");
+        if (func) {
+            func(enabled);
+        }
+    }
+    inline bool IsHotkeyEnabled() {
+        static auto func = Model::Internal::GetFunction<Model::IsHotkeyEnabledFunction>("IsHotkeyEnabled");
+        return func ? func() : false;
     }
     inline Model::InputEvent* AddInputEvent(Model::InputEventCallback callback) { return new Model::InputEvent(callback); }
     inline Model::HudElement* AddHudElement(Model::HudElementCallback callback) { return new Model::HudElement(callback); }
@@ -274,7 +286,8 @@ namespace ImGuiMCP {
         #define IM_COL32_A_MASK 0xFF000000
     #endif
 #endif
-#define IM_COL32(R, G, B, A) (((ImGuiMCP::ImU32)(A) << IM_COL32_A_SHIFT) | ((ImGuiMCP::ImU32)(B) << IM_COL32_B_SHIFT) | ((ImGuiMCP::ImU32)(G) << IM_COL32_G_SHIFT) | ((ImGuiMCP::ImU32)(R) << IM_COL32_R_SHIFT))
+#define IM_COL32(R, G, B, A) \
+    (((ImGuiMCP::ImU32)(A) << IM_COL32_A_SHIFT) | ((ImGuiMCP::ImU32)(B) << IM_COL32_B_SHIFT) | ((ImGuiMCP::ImU32)(G) << IM_COL32_G_SHIFT) | ((ImGuiMCP::ImU32)(R) << IM_COL32_R_SHIFT))
 #define IM_COL32_WHITE IM_COL32(255, 255, 255, 255)  // Opaque white = 0xFFFFFFFF
 #define IM_COL32_BLACK IM_COL32(0, 0, 0, 255)        // Opaque black
 #define IM_COL32_BLACK_TRANS IM_COL32(0, 0, 0, 0)    // Transparent black = 0x00000000
@@ -2004,10 +2017,12 @@ namespace ImGuiMCP {
     } ImGuiItemStatusFlags_;
     typedef enum {
         ImGuiHoveredFlags_DelayMask_ = ImGuiHoveredFlags_DelayNone | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay,
-        ImGuiHoveredFlags_AllowedMaskForIsWindowHovered = ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow | ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_NoPopupHierarchy | ImGuiHoveredFlags_DockHierarchy |
-                                                          ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem | ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_Stationary,
-        ImGuiHoveredFlags_AllowedMaskForIsItemHovered = ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem | ImGuiHoveredFlags_AllowWhenOverlapped | ImGuiHoveredFlags_AllowWhenDisabled |
-                                                        ImGuiHoveredFlags_NoNavOverride | ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_Stationary | ImGuiHoveredFlags_DelayMask_,
+        ImGuiHoveredFlags_AllowedMaskForIsWindowHovered = ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow | ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_NoPopupHierarchy |
+                                                          ImGuiHoveredFlags_DockHierarchy | ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem |
+                                                          ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_Stationary,
+        ImGuiHoveredFlags_AllowedMaskForIsItemHovered = ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem | ImGuiHoveredFlags_AllowWhenOverlapped |
+                                                        ImGuiHoveredFlags_AllowWhenDisabled | ImGuiHoveredFlags_NoNavOverride | ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_Stationary |
+                                                        ImGuiHoveredFlags_DelayMask_,
     } ImGuiHoveredFlagsPrivate_;
     typedef enum {
         ImGuiInputTextFlags_Multiline = 1 << 26,
@@ -2033,8 +2048,8 @@ namespace ImGuiMCP {
         ImGuiButtonFlags_NoHoveredOnFocus = 1 << 19,
         ImGuiButtonFlags_NoSetKeyOwner = 1 << 20,
         ImGuiButtonFlags_NoTestKeyOwner = 1 << 21,
-        ImGuiButtonFlags_PressedOnMask_ = ImGuiButtonFlags_PressedOnClick | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnClickReleaseAnywhere | ImGuiButtonFlags_PressedOnRelease |
-                                          ImGuiButtonFlags_PressedOnDoubleClick | ImGuiButtonFlags_PressedOnDragDropHold,
+        ImGuiButtonFlags_PressedOnMask_ = ImGuiButtonFlags_PressedOnClick | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnClickReleaseAnywhere |
+                                          ImGuiButtonFlags_PressedOnRelease | ImGuiButtonFlags_PressedOnDoubleClick | ImGuiButtonFlags_PressedOnDragDropHold,
         ImGuiButtonFlags_PressedOnDefault_ = ImGuiButtonFlags_PressedOnClickRelease,
     } ImGuiButtonFlagsPrivate_;
     typedef enum {
@@ -2394,7 +2409,8 @@ namespace ImGuiMCP {
         ImGuiInputFlags_CondActive = 1 << 23,
         ImGuiInputFlags_CondDefault_ = ImGuiInputFlags_CondHovered | ImGuiInputFlags_CondActive,
         ImGuiInputFlags_RepeatRateMask_ = ImGuiInputFlags_RepeatRateDefault | ImGuiInputFlags_RepeatRateNavMove | ImGuiInputFlags_RepeatRateNavTweak,
-        ImGuiInputFlags_RepeatUntilMask_ = ImGuiInputFlags_RepeatUntilRelease | ImGuiInputFlags_RepeatUntilKeyModsChange | ImGuiInputFlags_RepeatUntilKeyModsChangeFromNone | ImGuiInputFlags_RepeatUntilOtherKeyPress,
+        ImGuiInputFlags_RepeatUntilMask_ =
+            ImGuiInputFlags_RepeatUntilRelease | ImGuiInputFlags_RepeatUntilKeyModsChange | ImGuiInputFlags_RepeatUntilKeyModsChangeFromNone | ImGuiInputFlags_RepeatUntilOtherKeyPress,
         ImGuiInputFlags_RepeatMask_ = ImGuiInputFlags_Repeat | ImGuiInputFlags_RepeatRateMask_ | ImGuiInputFlags_RepeatUntilMask_,
         ImGuiInputFlags_CondMask_ = ImGuiInputFlags_CondHovered | ImGuiInputFlags_CondActive,
         ImGuiInputFlags_RouteTypeMask_ = ImGuiInputFlags_RouteActive | ImGuiInputFlags_RouteFocused | ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_RouteAlways,
@@ -2563,13 +2579,14 @@ namespace ImGuiMCP {
         ImGuiDockNodeFlags_NoDockingOverMe = 1 << 20,
         ImGuiDockNodeFlags_NoDockingOverOther = 1 << 21,
         ImGuiDockNodeFlags_NoDockingOverEmpty = 1 << 22,
-        ImGuiDockNodeFlags_NoDocking = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingOverEmpty | ImGuiDockNodeFlags_NoDockingSplit | ImGuiDockNodeFlags_NoDockingSplitOther,
+        ImGuiDockNodeFlags_NoDocking = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingOverEmpty | ImGuiDockNodeFlags_NoDockingSplit |
+                                       ImGuiDockNodeFlags_NoDockingSplitOther,
         ImGuiDockNodeFlags_SharedFlagsInheritMask_ = ~0,
         ImGuiDockNodeFlags_NoResizeFlagsMask_ = ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_NoResizeX | ImGuiDockNodeFlags_NoResizeY,
-        ImGuiDockNodeFlags_LocalFlagsTransferMask_ = ImGuiDockNodeFlags_NoDockingSplit | ImGuiDockNodeFlags_NoResizeFlagsMask_ | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoTabBar |
-                                                     ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton,
-        ImGuiDockNodeFlags_SavedFlagsMask_ = ImGuiDockNodeFlags_NoResizeFlagsMask_ | ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_HiddenTabBar |
-                                             ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton,
+        ImGuiDockNodeFlags_LocalFlagsTransferMask_ = ImGuiDockNodeFlags_NoDockingSplit | ImGuiDockNodeFlags_NoResizeFlagsMask_ | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_CentralNode |
+                                                     ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton,
+        ImGuiDockNodeFlags_SavedFlagsMask_ = ImGuiDockNodeFlags_NoResizeFlagsMask_ | ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_CentralNode | ImGuiDockNodeFlags_NoTabBar |
+                                             ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton,
     } ImGuiDockNodeFlagsPrivate_;
     typedef enum {
         ImGuiDataAuthority_Auto,
@@ -2742,8 +2759,9 @@ namespace ImGuiMCP {
         ImGuiDebugLogFlags_EventInputRouting = 1 << 7,
         ImGuiDebugLogFlags_EventDocking = 1 << 8,
         ImGuiDebugLogFlags_EventViewport = 1 << 9,
-        ImGuiDebugLogFlags_EventMask_ = ImGuiDebugLogFlags_EventActiveId | ImGuiDebugLogFlags_EventFocus | ImGuiDebugLogFlags_EventPopup | ImGuiDebugLogFlags_EventNav | ImGuiDebugLogFlags_EventClipper | ImGuiDebugLogFlags_EventSelection |
-                                        ImGuiDebugLogFlags_EventIO | ImGuiDebugLogFlags_EventInputRouting | ImGuiDebugLogFlags_EventDocking | ImGuiDebugLogFlags_EventViewport,
+        ImGuiDebugLogFlags_EventMask_ = ImGuiDebugLogFlags_EventActiveId | ImGuiDebugLogFlags_EventFocus | ImGuiDebugLogFlags_EventPopup | ImGuiDebugLogFlags_EventNav |
+                                        ImGuiDebugLogFlags_EventClipper | ImGuiDebugLogFlags_EventSelection | ImGuiDebugLogFlags_EventIO | ImGuiDebugLogFlags_EventInputRouting |
+                                        ImGuiDebugLogFlags_EventDocking | ImGuiDebugLogFlags_EventViewport,
         ImGuiDebugLogFlags_OutputToTTY = 1 << 20,
         ImGuiDebugLogFlags_OutputToTestEngine = 1 << 21,
     } ImGuiDebugLogFlags_;
@@ -4568,13 +4586,14 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igBullet");
         return func();
     }
-    inline void Image(ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0 = ImVec2(0, 0), const ImVec2 uv1 = ImVec2(1, 1), const ImVec4 tint_col = ImVec4(1, 1, 1, 1), const ImVec4 border_col = ImVec4(0, 0, 0, 0)) {
+    inline void Image(ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0 = ImVec2(0, 0), const ImVec2 uv1 = ImVec2(1, 1), const ImVec4 tint_col = ImVec4(1, 1, 1, 1),
+                      const ImVec4 border_col = ImVec4(0, 0, 0, 0)) {
         using func_t = void (*)(ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec4, const ImVec4);
         func_t func = GetMenuFrameworkFunction<func_t>("igImage");
         return func(user_texture_id, image_size, uv0, uv1, tint_col, border_col);
     }
-    inline bool ImageButton(const char* str_id, ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0 = ImVec2(0, 0), const ImVec2 uv1 = ImVec2(1, 1), const ImVec4 bg_col = ImVec4(0, 0, 0, 0),
-                            const ImVec4 tint_col = ImVec4(1, 1, 1, 1)) {
+    inline bool ImageButton(const char* str_id, ImTextureID user_texture_id, const ImVec2 image_size, const ImVec2 uv0 = ImVec2(0, 0), const ImVec2 uv1 = ImVec2(1, 1),
+                            const ImVec4 bg_col = ImVec4(0, 0, 0, 0), const ImVec4 tint_col = ImVec4(1, 1, 1, 1)) {
         using func_t = bool (*)(const char*, ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec4, const ImVec4);
         func_t func = GetMenuFrameworkFunction<func_t>("igImageButton");
         return func(str_id, user_texture_id, image_size, uv0, uv1, bg_col, tint_col);
@@ -4624,8 +4643,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igDragFloat4");
         return func(label, v, v_speed, v_min, v_max, format, flags);
     }
-    inline bool DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", const char* format_max = NULL,
-                                ImGuiSliderFlags flags = 0) {
+    inline bool DragFloatRange2(const char* label, float* v_current_min, float* v_current_max, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f",
+                                const char* format_max = NULL, ImGuiSliderFlags flags = 0) {
         using func_t = bool (*)(const char*, float*, float*, float, float, float, const char*, const char*, ImGuiSliderFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igDragFloatRange2");
         return func(label, v_current_min, v_current_max, v_speed, v_min, v_max, format, format_max, flags);
@@ -4650,17 +4669,20 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igDragInt4");
         return func(label, v, v_speed, v_min, v_max, format, flags);
     }
-    inline bool DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d", const char* format_max = NULL, ImGuiSliderFlags flags = 0) {
+    inline bool DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* format = "%d", const char* format_max = NULL,
+                              ImGuiSliderFlags flags = 0) {
         using func_t = bool (*)(const char*, int*, int*, float, int, int, const char*, const char*, ImGuiSliderFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igDragIntRange2");
         return func(label, v_current_min, v_current_max, v_speed, v_min, v_max, format, format_max, flags);
     }
-    inline bool DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed = 1.0f, const void* p_min = NULL, const void* p_max = NULL, const char* format = NULL, ImGuiSliderFlags flags = 0) {
+    inline bool DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed = 1.0f, const void* p_min = NULL, const void* p_max = NULL, const char* format = NULL,
+                           ImGuiSliderFlags flags = 0) {
         using func_t = bool (*)(const char*, ImGuiDataType, void*, float, const void*, const void*, const char*, ImGuiSliderFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igDragScalar");
         return func(label, data_type, p_data, v_speed, p_min, p_max, format, flags);
     }
-    inline bool DragScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, float v_speed = 1.0f, const void* p_min = NULL, const void* p_max = NULL, const char* format = NULL, ImGuiSliderFlags flags = 0) {
+    inline bool DragScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, float v_speed = 1.0f, const void* p_min = NULL, const void* p_max = NULL,
+                            const char* format = NULL, ImGuiSliderFlags flags = 0) {
         using func_t = bool (*)(const char*, ImGuiDataType, void*, int, float, const void*, const void*, const char*, ImGuiSliderFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igDragScalarN");
         return func(label, data_type, p_data, components, v_speed, p_min, p_max, format, flags);
@@ -4730,7 +4752,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igVSliderInt");
         return func(label, size, v, v_min, v_max, format, flags);
     }
-    inline bool VSliderScalar(const char* label, const ImVec2 size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format = NULL, ImGuiSliderFlags flags = 0) {
+    inline bool VSliderScalar(const char* label, const ImVec2 size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format = NULL,
+                              ImGuiSliderFlags flags = 0) {
         using func_t = bool (*)(const char*, const ImVec2, ImGuiDataType, void*, const void*, const void*, const char*, ImGuiSliderFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igVSliderScalar");
         return func(label, size, data_type, p_data, p_min, p_max, format, flags);
@@ -4740,7 +4763,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igInputText");
         return func(label, buf, buf_size, flags, callback, user_data);
     }
-    inline bool InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2 size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL) {
+    inline bool InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2 size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL,
+                                   void* user_data = NULL) {
         using func_t = bool (*)(const char*, char*, size_t, const ImVec2, ImGuiInputTextFlags, ImGuiInputTextCallback, void*);
         func_t func = GetMenuFrameworkFunction<func_t>("igInputTextMultiline");
         return func(label, buf, buf_size, size, flags, callback, user_data);
@@ -4795,12 +4819,14 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igInputDouble");
         return func(label, v, step, step_fast, format, flags);
     }
-    inline bool InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0) {
+    inline bool InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL,
+                            ImGuiInputTextFlags flags = 0) {
         using func_t = bool (*)(const char*, ImGuiDataType, void*, const void*, const void*, const char*, ImGuiInputTextFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igInputScalar");
         return func(label, data_type, p_data, p_step, p_step_fast, format, flags);
     }
-    inline bool InputScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0) {
+    inline bool InputScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL,
+                             ImGuiInputTextFlags flags = 0) {
         using func_t = bool (*)(const char*, ImGuiDataType, void*, int, const void*, const void*, const char*, ImGuiInputTextFlags);
         func_t func = GetMenuFrameworkFunction<func_t>("igInputScalarN");
         return func(label, data_type, p_data, components, p_step, p_step_fast, format, flags);
@@ -4966,26 +4992,26 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igListBox_FnStrPtr");
         return func(label, current_item, getter, user_data, items_count, height_in_items);
     }
-    inline void PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0),
-                          int stride = sizeof(float)) {
+    inline void PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX,
+                          ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float)) {
         using func_t = void (*)(const char*, const float*, int, int, const char*, float, float, ImVec2, int);
         func_t func = GetMenuFrameworkFunction<func_t>("igPlotLines_FloatPtr");
         return func(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, stride);
     }
-    inline void PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX,
-                          ImVec2 graph_size = ImVec2(0, 0)) {
+    inline void PlotLines(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL,
+                          float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0)) {
         using func_t = void (*)(const char*, float (*)(void*, int), void*, int, int, const char*, float, float, ImVec2);
         func_t func = GetMenuFrameworkFunction<func_t>("igPlotLines_FnFloatPtr");
         return func(label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
     }
-    inline void PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0),
-                              int stride = sizeof(float)) {
+    inline void PlotHistogram(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX,
+                              ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float)) {
         using func_t = void (*)(const char*, const float*, int, int, const char*, float, float, ImVec2, int);
         func_t func = GetMenuFrameworkFunction<func_t>("igPlotHistogram_FloatPtr");
         return func(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size, stride);
     }
-    inline void PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX,
-                              ImVec2 graph_size = ImVec2(0, 0)) {
+    inline void PlotHistogram(const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset = 0, const char* overlay_text = NULL,
+                              float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0)) {
         using func_t = void (*)(const char*, float (*)(void*, int), void*, int, int, const char*, float, float, ImVec2);
         func_t func = GetMenuFrameworkFunction<func_t>("igPlotHistogram_FnFloatPtr");
         return func(label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
@@ -6536,7 +6562,8 @@ namespace ImGuiMCP {
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_AddText_Vec2");
             return func(self, pos, col, text_begin, text_end);
         }
-        inline void AddText(ImDrawList* self, const ImFont* font, float font_size, const ImVec2 pos, ImU32 col, const char* text_begin, const char* text_end = 0, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = nullptr) {
+        inline void AddText(ImDrawList* self, const ImFont* font, float font_size, const ImVec2 pos, ImU32 col, const char* text_begin, const char* text_end = 0, float wrap_width = 0.0f,
+                            const ImVec4* cpu_fine_clip_rect = nullptr) {
             using func_t = void (*)(ImDrawList*, const ImFont*, float, const ImVec2, ImU32, const char*, const char*, float, const ImVec4*);
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_AddText_FontPtr");
             return func(self, font, font_size, pos, col, text_begin, text_end, wrap_width, cpu_fine_clip_rect);
@@ -6571,12 +6598,14 @@ namespace ImGuiMCP {
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_AddImage");
             return func(self, user_texture_id, p_min, p_max, uv_min, uv_max, col);
         }
-        inline void AddImageQuad(ImDrawList* self, ImTextureID user_texture_id, const ImVec2 p1, const ImVec2 p2, const ImVec2 p3, const ImVec2 p4, const ImVec2 uv1, const ImVec2 uv2, const ImVec2 uv3, const ImVec2 uv4, ImU32 col) {
+        inline void AddImageQuad(ImDrawList* self, ImTextureID user_texture_id, const ImVec2 p1, const ImVec2 p2, const ImVec2 p3, const ImVec2 p4, const ImVec2 uv1, const ImVec2 uv2,
+                                 const ImVec2 uv3, const ImVec2 uv4, ImU32 col) {
             using func_t = void (*)(ImDrawList*, ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, ImU32);
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_AddImageQuad");
             return func(self, user_texture_id, p1, p2, p3, p4, uv1, uv2, uv3, uv4, col);
         }
-        inline void AddImageRounded(ImDrawList* self, ImTextureID user_texture_id, const ImVec2 p_min, const ImVec2 p_max, const ImVec2 uv_min, const ImVec2 uv_max, ImU32 col, float rounding, ImDrawFlags flags) {
+        inline void AddImageRounded(ImDrawList* self, ImTextureID user_texture_id, const ImVec2 p_min, const ImVec2 p_max, const ImVec2 uv_min, const ImVec2 uv_max, ImU32 col, float rounding,
+                                    ImDrawFlags flags) {
             using func_t = void (*)(ImDrawList*, ImTextureID, const ImVec2, const ImVec2, const ImVec2, const ImVec2, ImU32, float, ImDrawFlags);
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_AddImageRounded");
             return func(self, user_texture_id, p_min, p_max, uv_min, uv_max, col, rounding, flags);
@@ -6691,7 +6720,8 @@ namespace ImGuiMCP {
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_PrimRectUV");
             return func(self, a, b, uv_a, uv_b, col);
         }
-        inline void PrimQuadUV(ImDrawList* self, const ImVec2 a, const ImVec2 b, const ImVec2 c, const ImVec2 d, const ImVec2 uv_a, const ImVec2 uv_b, const ImVec2 uv_c, const ImVec2 uv_d, ImU32 col) {
+        inline void PrimQuadUV(ImDrawList* self, const ImVec2 a, const ImVec2 b, const ImVec2 c, const ImVec2 d, const ImVec2 uv_a, const ImVec2 uv_b, const ImVec2 uv_c, const ImVec2 uv_d,
+                               ImU32 col) {
             using func_t = void (*)(ImDrawList*, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, const ImVec2, ImU32);
             func_t func = GetMenuFrameworkFunction<func_t>("ImDrawList_PrimQuadUV");
             return func(self, a, b, c, d, uv_a, uv_b, uv_c, uv_d, col);
@@ -6910,7 +6940,8 @@ namespace ImGuiMCP {
             func_t func = GetMenuFrameworkFunction<func_t>("ImFontAtlas_AddFontFromMemoryTTF");
             return func(self, font_data, font_data_size, size_pixels, font_cfg, glyph_ranges);
         }
-        inline ImFont* AddFontFromMemoryCompressedTTF(ImFontAtlas* self, const void* compressed_font_data, int compressed_font_data_size, float size_pixels, const ImFontConfig* font_cfg, const ImWchar* glyph_ranges) {
+        inline ImFont* AddFontFromMemoryCompressedTTF(ImFontAtlas* self, const void* compressed_font_data, int compressed_font_data_size, float size_pixels, const ImFontConfig* font_cfg,
+                                                      const ImWchar* glyph_ranges) {
             using func_t = ImFont* (*)(ImFontAtlas*, const void*, int, float, const ImFontConfig*, const ImWchar*);
             func_t func = GetMenuFrameworkFunction<func_t>("ImFontAtlas_AddFontFromMemoryCompressedTTF");
             return func(self, compressed_font_data, compressed_font_data_size, size_pixels, font_cfg, glyph_ranges);
@@ -7090,7 +7121,8 @@ namespace ImGuiMCP {
             func_t func = GetMenuFrameworkFunction<func_t>("ImFont_RenderChar");
             return func(self, draw_list, size, pos, col, c);
         }
-        inline void RenderText(ImFont* self, ImDrawList* draw_list, float size, const ImVec2 pos, ImU32 col, const ImVec4 clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip) {
+        inline void RenderText(ImFont* self, ImDrawList* draw_list, float size, const ImVec2 pos, ImU32 col, const ImVec4 clip_rect, const char* text_begin, const char* text_end, float wrap_width,
+                               bool cpu_fine_clip) {
             using func_t = void (*)(ImFont*, ImDrawList*, float, const ImVec2, ImU32, const ImVec4, const char*, const char*, float, bool);
             func_t func = GetMenuFrameworkFunction<func_t>("ImFont_RenderText");
             return func(self, draw_list, size, pos, col, clip_rect, text_begin, text_end, wrap_width, cpu_fine_clip);
@@ -9878,7 +9910,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igDockContextProcessUndockNode");
         return func(ctx, node);
     }
-    inline bool DockContextCalcDropPosForDocking(ImGuiWindow* target, ImGuiDockNode* target_node, ImGuiWindow* payload_window, ImGuiDockNode* payload_node, ImGuiDir split_dir, bool split_outer, ImVec2* out_pos) {
+    inline bool DockContextCalcDropPosForDocking(ImGuiWindow* target, ImGuiDockNode* target_node, ImGuiWindow* payload_window, ImGuiDockNode* payload_node, ImGuiDir split_dir, bool split_outer,
+                                                 ImVec2* out_pos) {
         using func_t = bool (*)(ImGuiWindow*, ImGuiDockNode*, ImGuiWindow*, ImGuiDockNode*, ImGuiDir, bool, ImVec2*);
         func_t func = GetMenuFrameworkFunction<func_t>("igDockContextCalcDropPosForDocking");
         return func(target, target_node, payload_window, payload_node, split_dir, split_outer, out_pos);
@@ -10489,8 +10522,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igTabItemBackground");
         return func(draw_list, bb, flags, col);
     }
-    inline void TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect bb, ImGuiTabItemFlags flags, ImVec2 frame_padding, const char* label, ImGuiID tab_id, ImGuiID close_button_id, bool is_contents_visible, bool* out_just_closed,
-                                           bool* out_text_clipped) {
+    inline void TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect bb, ImGuiTabItemFlags flags, ImVec2 frame_padding, const char* label, ImGuiID tab_id, ImGuiID close_button_id,
+                                           bool is_contents_visible, bool* out_just_closed, bool* out_text_clipped) {
         using func_t = void (*)(ImDrawList*, const ImRect, ImGuiTabItemFlags, ImVec2, const char*, ImGuiID, ImGuiID, bool, bool*, bool*);
         func_t func = GetMenuFrameworkFunction<func_t>("igTabItemLabelAndCloseButton");
         return func(draw_list, bb, flags, frame_padding, label, tab_id, close_button_id, is_contents_visible, out_just_closed, out_text_clipped);
@@ -10510,12 +10543,14 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igRenderTextClipped");
         return func(pos_min, pos_max, text, text_end, text_size_if_known, align, clip_rect);
     }
-    inline void RenderTextClippedEx(ImDrawList* draw_list, const ImVec2 pos_min, const ImVec2 pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known, const ImVec2 align, const ImRect* clip_rect) {
+    inline void RenderTextClippedEx(ImDrawList* draw_list, const ImVec2 pos_min, const ImVec2 pos_max, const char* text, const char* text_end, const ImVec2* text_size_if_known, const ImVec2 align,
+                                    const ImRect* clip_rect) {
         using func_t = void (*)(ImDrawList*, const ImVec2, const ImVec2, const char*, const char*, const ImVec2*, const ImVec2, const ImRect*);
         func_t func = GetMenuFrameworkFunction<func_t>("igRenderTextClippedEx");
         return func(draw_list, pos_min, pos_max, text, text_end, text_size_if_known, align, clip_rect);
     }
-    inline void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2 pos_min, const ImVec2 pos_max, float clip_max_x, float ellipsis_max_x, const char* text, const char* text_end, const ImVec2* text_size_if_known) {
+    inline void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2 pos_min, const ImVec2 pos_max, float clip_max_x, float ellipsis_max_x, const char* text, const char* text_end,
+                                   const ImVec2* text_size_if_known) {
         using func_t = void (*)(ImDrawList*, const ImVec2, const ImVec2, float, float, const char*, const char*, const ImVec2*);
         func_t func = GetMenuFrameworkFunction<func_t>("igRenderTextEllipsis");
         return func(draw_list, pos_min, pos_max, clip_max_x, ellipsis_max_x, text, text_end, text_size_if_known);
@@ -10687,7 +10722,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igSliderBehavior");
         return func(bb, id, data_type, p_v, p_min, p_max, format, flags, out_grab_bb);
     }
-    inline bool SplitterBehavior(const ImRect bb, ImGuiID id, ImGuiAxis axis, float* size1, float* size2, float min_size1, float min_size2, float hover_extend, float hover_visibility_delay, ImU32 bg_col) {
+    inline bool SplitterBehavior(const ImRect bb, ImGuiID id, ImGuiAxis axis, float* size1, float* size2, float min_size1, float min_size2, float hover_extend, float hover_visibility_delay,
+                                 ImU32 bg_col) {
         using func_t = bool (*)(const ImRect, ImGuiID, ImGuiAxis, float*, float*, float, float, float, float, ImU32);
         func_t func = GetMenuFrameworkFunction<func_t>("igSplitterBehavior");
         return func(bb, id, axis, size1, size2, min_size1, min_size2, hover_extend, hover_visibility_delay, bg_col);
@@ -10797,8 +10833,8 @@ namespace ImGuiMCP {
         func_t func = GetMenuFrameworkFunction<func_t>("igColorPickerOptionsPopup");
         return func(ref_col, flags);
     }
-    inline int PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max,
-                      const ImVec2 size_arg) {
+    inline int PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text,
+                      float scale_min, float scale_max, const ImVec2 size_arg) {
         using func_t = int (*)(ImGuiPlotType, const char*, float (*)(void*, int), void*, int, int, const char*, float, float, const ImVec2);
         func_t func = GetMenuFrameworkFunction<func_t>("igPlotEx");
         return func(plot_type, label, values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, size_arg);

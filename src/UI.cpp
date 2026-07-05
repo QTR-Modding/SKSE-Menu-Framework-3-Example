@@ -169,7 +169,7 @@ void __stdcall UI::Example5::RenderOverlay() {
     // center.y *= 0.5;
     // ImGui::ImDrawListManager::AddCircle(drawList, center, 100, IM_COL32(255, 0, 0, 255), 100, 10);
 
-    const char* text = "Press B to toggle the info window";
+    const char* text = "Press B to toggle the info window \nPress N to toggle the menu framework hotkey \nPress M to open and close the menu framework window via API";
     ImGuiMCP::ImVec2 textSize = ImGuiMCP::CalcTextSize(text, 0, false, 0);
     ImGuiMCP::ImVec2 textPos = ImGuiMCP::ImVec2(ImGuiMCP::GetIO()->DisplaySize.x - textSize.x - 20, 20);  // 10px padding from edges
     ImGuiMCP::ImDrawListManager::AddText(drawList, textPos, IM_COL32(255, 255, 255, 255), text);
@@ -182,6 +182,14 @@ bool __stdcall UI::Example5::OnInput(RE::InputEvent* event) {
             if (button->GetIDCode() == RE::BSWin32KeyboardDevice::Key::kB && button->IsDown()) {
                 NonPausingWindow->IsOpen = !NonPausingWindow->IsOpen;
                 blockThisUserInput = true;
+            }
+        }
+    }
+
+    if (event->device == RE::INPUT_DEVICE::kKeyboard) {
+        if (auto button = event->AsButtonEvent()) {
+            if (button->GetIDCode() == RE::BSWin32KeyboardDevice::Key::kN && button->IsDown()) {
+                SKSEMenuFramework::SetHotkeyEnabled(!SKSEMenuFramework::IsHotkeyEnabled());
             }
         }
     }
@@ -247,10 +255,10 @@ void __stdcall UI::Example6::OnEvent(SKSEMenuFramework::Model::EventType eventTy
 
 void __stdcall UI::Example7::Render() {
 
-    SKSEMenuFramework::PushFont("MonsieurLaDoulaise-Regular.ttf");
+    SKSEMenuFramework::PushFont("MonsieurLaDoulaise-Regular");
     ImGuiMCP::Text("Hello world");
     ImGuiMCP::PopFont();
-    SKSEMenuFramework::PushFont("RobotoMono-Regular.ttf");
+    SKSEMenuFramework::PushFont("RobotoMono-Regular");
     ImGuiMCP::Text("Hello world");
     ImGuiMCP::PopFont();
 }
