@@ -1,5 +1,3 @@
 {
-  "small": 64.0,
-  "default": 128.0,
-  "big": 256.0
+  "fontSize": 128.0
 }
