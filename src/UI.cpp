@@ -135,17 +135,15 @@ void __stdcall UI::Example3::Render() {
 }
 
 void __stdcall UI::Example4::Render() {
-    FontAwesome::PushBrands();
+    SKSEMenuFramework::PushFont("fa-brands-400");
     ImGuiMCP::Text(TitleText.c_str());
     FontAwesome::Pop();
 
-    FontAwesome::PushSolid();
     ImGuiMCP::Button(Button1Text.c_str());
-    FontAwesome::Pop();
 
     ImGuiMCP::SameLine();
 
-    FontAwesome::PushRegular();
+    SKSEMenuFramework::PushFont("fa-regular-400");
     ImGuiMCP::Button(Button2Text.c_str());
     FontAwesome::Pop();
 }
