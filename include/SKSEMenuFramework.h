@@ -71,6 +71,8 @@ namespace SKSEMenuFramework {
         using AddWindowWithViewFunction = Model::WindowInterface* (*)(RenderFunction, const char*);
         using GetMainWindowFunction = Model::WindowInterface* (*)();
         using AddSectionItemFunction = void (*)(const char* path, RenderFunction rendererFunction);
+        using RenameSectionFunction = bool (*)(const char* path, const char* newName);
+        using DeleteSectionFunction = bool (*)(const char* path);
 
         using RegisterInputEventFuction = int64_t (*)(InputEventCallback callback);
         using UnregisterInputEventFuction = void (*)(uint64_t id);
@@ -146,6 +148,23 @@ namespace SKSEMenuFramework {
         if (func) {
             return func((Model::Internal::key + "/" + menu).c_str(), rendererFunction);
         }
+    }
+
+    inline void FullPathAddSectionItem(std::string path, Model::RenderFunction rendererFunction) {
+        static auto func = Model::Internal::GetFunction<Model::AddSectionItemFunction>("AddSectionItem");
+        if (func) {
+            return func(path.c_str(), rendererFunction);
+        }
+    }
+
+    inline bool RenameSection(std::string path, std::string newName) {
+        static auto func = Model::Internal::GetFunction<Model::RenameSectionFunction>("RenameSection");
+        return func ? func(path.c_str(), newName.c_str()) : false;
+    }
+
+    inline bool DeleteSection(std::string path) {
+        static auto func = Model::Internal::GetFunction<Model::DeleteSectionFunction>("DeleteSection");
+        return func ? func(path.c_str()) : false;
     }
 
     inline Model::WindowInterface* AddWindow(Model::RenderFunction rendererFunction, bool doesWindowPauseGame = true) {

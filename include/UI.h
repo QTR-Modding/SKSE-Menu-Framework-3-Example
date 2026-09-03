@@ -40,4 +40,7 @@ namespace UI {
     namespace Example7 {
         void __stdcall Render();
     }
+    namespace Example8 {
+        void __stdcall Render();
+    }
 };
