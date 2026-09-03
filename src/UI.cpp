@@ -16,7 +16,7 @@ void UI::Register() {
     SKSEMenuFramework::AddSectionItem("Example 5", Example5::Render);
     SKSEMenuFramework::AddSectionItem("Example 6", Example6::Render);
     SKSEMenuFramework::AddSectionItem("Example 7", Example7::Render);
-    SKSEMenuFramework::AddSectionItem("Example 8", Example8::Render);
+    SKSEMenuFramework::AddSectionItem("Example 8 \\/ Test", Example8::Render);
     SKSEMenuFramework::AddHudElement(Example5::RenderOverlay);
     SKSEMenuFramework::AddInputEvent(Example5::OnInput);
     UI::Example5::NonPausingWindow = SKSEMenuFramework::AddWindow(Example5::RenderWindow, false);
@@ -263,6 +263,9 @@ void __stdcall UI::Example7::Render() {
 }
 
 void __stdcall UI::Example8::Render() {
+
+    ImGuiMCP::Text(std::format("{}", SKSEMenuFramework::GetMenuFrameworkAPIVersion()).c_str());
+
     static char buffer[256] = "hello/world";
     ImGuiMCP::Text("Select menu");
     ImGuiMCP::InputText("Path##Path1", buffer, 256);
