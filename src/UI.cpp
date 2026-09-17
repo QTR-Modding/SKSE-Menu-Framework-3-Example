@@ -220,9 +220,9 @@ void __stdcall UI::Example5::RenderWindow() {
 
     ImGuiMCP::Text("%s", u8"CN : 祝你今天愉快！");
     ImGuiMCP::Text("%s", u8"EN : Have a nice day !");
-    ImGuiMCP::Text("%s", u8"🇯🇵 JA : 良い一日を！");
-    ImGuiMCP::Text("%s", u8"🇷🇺 RU : Хорошего дня !");
-    ImGuiMCP::Text("%s", u8"🇵🇱 PL : Miłego dnia !");
+    ImGuiMCP::Text("%s", u8"JA : 良い一日を！");
+    ImGuiMCP::Text("%s", u8"RU : Хорошего дня !");
+    ImGuiMCP::Text("%s", u8"PL : Miłego dnia !");
 
 
 
