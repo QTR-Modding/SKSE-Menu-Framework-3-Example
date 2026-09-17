@@ -216,6 +216,16 @@ void __stdcall UI::Example5::RenderWindow() {
     ImGuiMCP::Begin("My First Overlay Window##MenuEntiryFromMod", nullptr, ImGuiMCP::ImGuiWindowFlags_NoCollapse);
     ImGuiMCP::Text("Chinese characters (requires chinese font and chinese to be enabled on the ini file): \n%s", u8"测试");
     ImGuiMCP::Text("Turkish characters (requires turkish font and turkish to be enabled on the ini file): \n%s", u8"ı - I/ i - İ/ ğ - Ğ/ ü - Ü/ ş - Ş/ ö - Ö/ ç - Ç");
+
+
+    ImGuiMCP::Text("%s", u8"CN : 祝你今天愉快！");
+    ImGuiMCP::Text("%s", u8"EN : Have a nice day !");
+    ImGuiMCP::Text("%s", u8"🇯🇵 JA : 良い一日を！");
+    ImGuiMCP::Text("%s", u8"🇷🇺 RU : Хорошего дня !");
+    ImGuiMCP::Text("%s", u8"🇵🇱 PL : Miłego dnia !");
+
+
+
     // You can load only once if you want, but the texture loader creates a cache of your texutre;
     auto texture = SKSEMenuFramework::LoadTexture("Data\\interface\\unlit-bomb.svg", {100, 100});
     auto texture2 = SKSEMenuFramework::LoadTexture("Data\\interface\\screenshot.png");
